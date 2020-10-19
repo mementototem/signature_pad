@@ -10,6 +10,9 @@ export const dataURL = {
 export const json = [
   {
     color: 'black',
+    dotSize: 2.5,
+    maxWidth: 2.5,
+    minWidth: 2.5,
     points: [
       {
         time: 1523730547109,
@@ -20,6 +23,9 @@ export const json = [
   },
   {
     color: 'black',
+    dotSize: 2.5,
+    maxWidth: 2.5,
+    minWidth: 2.5,
     points: [
       {
         time: 1523730547775,
@@ -30,6 +36,9 @@ export const json = [
   },
   {
     color: 'black',
+    dotSize: 2.5,
+    maxWidth: 2.5,
+    minWidth: 2.5,
     points: [
       {
         time: 1523730548448,

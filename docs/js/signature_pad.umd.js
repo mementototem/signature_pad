@@ -5,9 +5,10 @@
 
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.SignaturePad = factory());
-}(this, (function () { 'use strict';
+        typeof define === 'function' && define.amd ? define(factory) :
+            (global.SignaturePad = factory());
+}(this, (function () {
+    'use strict';
 
     var Point = (function () {
         function Point(x, y, time) {
@@ -137,8 +138,8 @@
 
     var SignaturePad = (function () {
         function SignaturePad(canvas, options) {
-            var _this = this;
             if (options === void 0) { options = {}; }
+            var _this = this;
             this.canvas = canvas;
             this.options = options;
             this._handleMouseDown = function (event) {
@@ -185,24 +186,28 @@
             this.minDistance = ('minDistance' in options
                 ? options.minDistance
                 : 5);
+            if (this.throttle) {
+                this._strokeMoveUpdate = throttle(SignaturePad.prototype._strokeUpdate, this.throttle);
+            }
+            else {
+                this._strokeMoveUpdate = SignaturePad.prototype._strokeUpdate;
+            }
             this.dotSize =
                 options.dotSize ||
-                    function dotSize() {
-                        return (this.minWidth + this.maxWidth) / 2;
-                    };
+                function dotSize() {
+                    return (this.minWidth + this.maxWidth) / 2;
+                };
             this.penColor = options.penColor || 'black';
             this.backgroundColor = options.backgroundColor || 'rgba(0,0,0,0)';
             this.onBegin = options.onBegin;
             this.onEnd = options.onEnd;
-            this._strokeMoveUpdate = this.throttle
-                ? throttle(SignaturePad.prototype._strokeUpdate, this.throttle)
-                : SignaturePad.prototype._strokeUpdate;
             this._ctx = canvas.getContext('2d');
             this.clear();
             this.on();
         }
         SignaturePad.prototype.clear = function () {
-            var _a = this, ctx = _a._ctx, canvas = _a.canvas;
+            var ctx = this._ctx;
+            var canvas = this.canvas;
             ctx.fillStyle = this.backgroundColor;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -282,12 +287,19 @@
             });
             this._data = pointGroups;
         };
+        SignaturePad.prototype.undo = function () {
+            this._data.pop();
+            this.fromData(this._data);
+        };
         SignaturePad.prototype.toData = function () {
             return this._data;
         };
         SignaturePad.prototype._strokeBegin = function (event) {
             var newPointGroup = {
                 color: this.penColor,
+                dotSize: typeof this.dotSize === 'function' ? this.dotSize() : this.dotSize,
+                maxWidth: this.maxWidth,
+                minWidth: this.minWidth,
                 points: []
             };
             if (typeof this.onBegin === 'function') {
@@ -298,10 +310,6 @@
             this._strokeUpdate(event);
         };
         SignaturePad.prototype._strokeUpdate = function (event) {
-            if (this._data.length === 0) {
-                this._strokeBegin(event);
-                return;
-            }
             var x = event.clientX;
             var y = event.clientY;
             var point = this._createPoint(x, y);
@@ -436,12 +444,15 @@
         SignaturePad.prototype._fromData = function (pointGroups, drawCurve, drawDot) {
             for (var _i = 0, pointGroups_1 = pointGroups; _i < pointGroups_1.length; _i++) {
                 var group = pointGroups_1[_i];
-                var color = group.color, points = group.points;
+                var color = group.color, dotSize = group.dotSize, maxWidth = group.maxWidth, minWidth = group.minWidth, points = group.points;
+                this.dotSize = dotSize;
+                this.maxWidth = maxWidth;
+                this.minWidth = minWidth;
+                this.penColor = color;
                 if (points.length > 1) {
                     for (var j = 0; j < points.length; j += 1) {
                         var basicPoint = points[j];
                         var point = new Point(basicPoint.x, basicPoint.y, basicPoint.time);
-                        this.penColor = color;
                         if (j === 0) {
                             this._reset();
                         }
