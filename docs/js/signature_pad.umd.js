@@ -282,12 +282,19 @@
             });
             this._data = pointGroups;
         };
+        SignaturePad.prototype.undo = function () {
+            this._data.pop();
+            this.fromData(this._data);
+        };
         SignaturePad.prototype.toData = function () {
             return this._data;
         };
         SignaturePad.prototype._strokeBegin = function (event) {
             var newPointGroup = {
                 color: this.penColor,
+                dotSize: typeof this.dotSize === 'function' ? this.dotSize() : this.dotSize,
+                maxWidth: this.maxWidth,
+                minWidth: this.minWidth,
                 points: []
             };
             if (typeof this.onBegin === 'function') {
@@ -436,12 +443,15 @@
         SignaturePad.prototype._fromData = function (pointGroups, drawCurve, drawDot) {
             for (var _i = 0, pointGroups_1 = pointGroups; _i < pointGroups_1.length; _i++) {
                 var group = pointGroups_1[_i];
-                var color = group.color, points = group.points;
+                var color = group.color, dotSize = group.dotSize, maxWidth = group.maxWidth, minWidth = group.minWidth, points = group.points;
+                this.dotSize = dotSize;
+                this.maxWidth = maxWidth;
+                this.minWidth = minWidth;
+                this.penColor = color;
                 if (points.length > 1) {
                     for (var j = 0; j < points.length; j += 1) {
                         var basicPoint = points[j];
                         var point = new Point(basicPoint.x, basicPoint.y, basicPoint.time);
-                        this.penColor = color;
                         if (j === 0) {
                             this._reset();
                         }
