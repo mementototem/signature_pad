@@ -2,6 +2,7 @@ var wrapper = document.getElementById("signature-pad");
 var clearButton = wrapper.querySelector("[data-action=clear]");
 var changeColorButton = wrapper.querySelector("[data-action=change-color]");
 var undoButton = wrapper.querySelector("[data-action=undo]");
+var eraseButton = wrapper.querySelector("[data-action=erase]");
 var savePNGButton = wrapper.querySelector("[data-action=save-png]");
 var saveJPGButton = wrapper.querySelector("[data-action=save-jpg]");
 var saveSVGButton = wrapper.querySelector("[data-action=save-svg]");
@@ -83,6 +84,10 @@ undoButton.addEventListener("click", function (event) {
   signaturePad.undo();
 });
 
+eraseButton.addEventListener("click", function (event) {
+  signaturePad.composition = 'destination-out';
+})
+
 changeColorButton.addEventListener("click", function (event) {
   var r = Math.round(Math.random() * 255);
   var g = Math.round(Math.random() * 255);
@@ -90,6 +95,7 @@ changeColorButton.addEventListener("click", function (event) {
   var color = "rgb(" + r + "," + g + "," + b +")";
 
   signaturePad.penColor = color;
+  signaturePad.composition = 'source-over';
 });
 
 savePNGButton.addEventListener("click", function (event) {

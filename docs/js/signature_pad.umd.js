@@ -192,6 +192,7 @@
                     };
             this.penColor = options.penColor || 'black';
             this.backgroundColor = options.backgroundColor || 'rgba(0,0,0,0)';
+            this.composition = options.composition || 'source-over';
             this.onBegin = options.onBegin;
             this.onEnd = options.onEnd;
             this._strokeMoveUpdate = this.throttle
@@ -295,8 +296,10 @@
                 dotSize: typeof this.dotSize === 'function' ? this.dotSize() : this.dotSize,
                 maxWidth: this.maxWidth,
                 minWidth: this.minWidth,
+                composition: this.composition,
                 points: []
             };
+            this._ctx.globalCompositeOperation = this.composition;
             if (typeof this.onBegin === 'function') {
                 this.onBegin(event);
             }
@@ -443,11 +446,13 @@
         SignaturePad.prototype._fromData = function (pointGroups, drawCurve, drawDot) {
             for (var _i = 0, pointGroups_1 = pointGroups; _i < pointGroups_1.length; _i++) {
                 var group = pointGroups_1[_i];
-                var color = group.color, dotSize = group.dotSize, maxWidth = group.maxWidth, minWidth = group.minWidth, points = group.points;
+                var color = group.color, dotSize = group.dotSize, maxWidth = group.maxWidth, minWidth = group.minWidth, points = group.points, composition = group.composition;
                 this.dotSize = dotSize;
                 this.maxWidth = maxWidth;
                 this.minWidth = minWidth;
                 this.penColor = color;
+                this.composition = composition;
+                this._ctx.globalCompositeOperation = this.composition;
                 if (points.length > 1) {
                     for (var j = 0; j < points.length; j += 1) {
                         var basicPoint = points[j];

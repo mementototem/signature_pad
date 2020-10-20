@@ -26,6 +26,7 @@ export interface Options {
   minDistance?: number;
   backgroundColor?: string;
   penColor?: string;
+  composition?: string;
   throttle?: number;
   velocityFilterWeight?: number;
   onBegin?: (event: MouseEvent | Touch) => void;
@@ -34,9 +35,10 @@ export interface Options {
 
 export interface PointGroup {
   color: string;
-  dotSize: number,
-  maxWidth: number,
-  minWidth: number,
+  dotSize: number;
+  maxWidth: number;
+  minWidth: number;
+  composition: string;
   points: BasicPoint[];
 }
 
@@ -48,6 +50,7 @@ export default class SignaturePad {
   public minDistance: number;
   public backgroundColor: string;
   public penColor: string;
+  public composition: string;
   public throttle: number;
   public velocityFilterWeight: number;
   public onBegin?: (event: MouseEvent | Touch) => void;
@@ -83,6 +86,7 @@ export default class SignaturePad {
       };
     this.penColor = options.penColor || 'black';
     this.backgroundColor = options.backgroundColor || 'rgba(0,0,0,0)';
+    this.composition = options.composition || 'source-over';
     this.onBegin = options.onBegin;
     this.onEnd = options.onEnd;
 
@@ -262,8 +266,11 @@ export default class SignaturePad {
       dotSize: typeof this.dotSize === 'function' ? this.dotSize() : this.dotSize,
       maxWidth: this.maxWidth,
       minWidth: this.minWidth,
+      composition: this.composition,
       points: [],
     };
+
+    this._ctx.globalCompositeOperation = this.composition;
 
     if (typeof this.onBegin === 'function') {
       this.onBegin(event);
@@ -480,13 +487,15 @@ export default class SignaturePad {
     drawDot: SignaturePad['_drawDot'],
   ): void {
     for (const group of pointGroups) {
-      const { color, dotSize, maxWidth, minWidth, points } = group;
+      const { color, dotSize, maxWidth, minWidth, points, composition } = group;
       // All points in the group have the same color and size limitations, so it's enough to set
       // penColor and brush sizes just at the beginning.
       this.dotSize = dotSize;
       this.maxWidth = maxWidth;
       this.minWidth = minWidth;
       this.penColor = color;
+      this.composition = composition;
+      this._ctx.globalCompositeOperation = this.composition;
 
       if (points.length > 1) {
         for (let j = 0; j < points.length; j += 1) {
