@@ -13,6 +13,7 @@ export const json = [
     dotSize: 2.5,
     maxWidth: 2.5,
     minWidth: 2.5,
+    composition: 'source-over',
     points: [
       {
         time: 1523730547109,
@@ -26,6 +27,7 @@ export const json = [
     dotSize: 2.5,
     maxWidth: 2.5,
     minWidth: 2.5,
+    composition: 'source-over',
     points: [
       {
         time: 1523730547775,
@@ -39,6 +41,7 @@ export const json = [
     dotSize: 2.5,
     maxWidth: 2.5,
     minWidth: 2.5,
+    composition: 'source-over',
     points: [
       {
         time: 1523730548448,
