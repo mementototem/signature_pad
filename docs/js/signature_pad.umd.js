@@ -5,10 +5,9 @@
 
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-        typeof define === 'function' && define.amd ? define(factory) :
-            (global.SignaturePad = factory());
-}(this, (function () {
-    'use strict';
+    typeof define === 'function' && define.amd ? define(factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.SignaturePad = factory());
+}(this, (function () { 'use strict';
 
     var Point = (function () {
         function Point(x, y, time) {
@@ -138,8 +137,8 @@
 
     var SignaturePad = (function () {
         function SignaturePad(canvas, options) {
-            if (options === void 0) { options = {}; }
             var _this = this;
+            if (options === void 0) { options = {}; }
             this.canvas = canvas;
             this.options = options;
             this._handleMouseDown = function (event) {
@@ -186,28 +185,24 @@
             this.minDistance = ('minDistance' in options
                 ? options.minDistance
                 : 5);
-            if (this.throttle) {
-                this._strokeMoveUpdate = throttle(SignaturePad.prototype._strokeUpdate, this.throttle);
-            }
-            else {
-                this._strokeMoveUpdate = SignaturePad.prototype._strokeUpdate;
-            }
             this.dotSize =
                 options.dotSize ||
-                function dotSize() {
-                    return (this.minWidth + this.maxWidth) / 2;
-                };
+                    function dotSize() {
+                        return (this.minWidth + this.maxWidth) / 2;
+                    };
             this.penColor = options.penColor || 'black';
             this.backgroundColor = options.backgroundColor || 'rgba(0,0,0,0)';
             this.onBegin = options.onBegin;
             this.onEnd = options.onEnd;
+            this._strokeMoveUpdate = this.throttle
+                ? throttle(SignaturePad.prototype._strokeUpdate, this.throttle)
+                : SignaturePad.prototype._strokeUpdate;
             this._ctx = canvas.getContext('2d');
             this.clear();
             this.on();
         }
         SignaturePad.prototype.clear = function () {
-            var ctx = this._ctx;
-            var canvas = this.canvas;
+            var _a = this, ctx = _a._ctx, canvas = _a.canvas;
             ctx.fillStyle = this.backgroundColor;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -310,6 +305,10 @@
             this._strokeUpdate(event);
         };
         SignaturePad.prototype._strokeUpdate = function (event) {
+            if (this._data.length === 0) {
+                this._strokeBegin(event);
+                return;
+            }
             var x = event.clientX;
             var y = event.clientY;
             var point = this._createPoint(x, y);
